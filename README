@@ -5,3 +5,6 @@
 Here are two questions to be solved:
 1. How to conbine the input 2D label vectors with 3D noise image (structure of conditional GAN)? 
 2. How to use .caffemodel or .tfmodel in back-propogation?
+
+
+fk you 
