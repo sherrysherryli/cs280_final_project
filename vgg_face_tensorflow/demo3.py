@@ -47,16 +47,7 @@ class GG(object):
 		self.bnorm1 = batch_norm(name='Bnorm1')
 
 		self.init = tf.global_variables_initializer()
-		self.load_model()
 
-	def load_model(self):
-		with open(self.model_url, mode='rb') as f:
-			model = f.read()
-		graph_def = tf.GraphDef()
-		graph_def.ParseFromString(model)
-		image = tf.placeholder(tf.float32, [self.batch_size, self.image_size, self.image_size, 3])
-		tf.import_graph_def(graph_def, input_map={'images': image})
-		self.graph_d = tf.get_default_graph()
 
 	def fully(self, u, with_w=False, name='Fully'):
 		# u: Input variable of vector
@@ -87,7 +78,7 @@ class GG(object):
 		return tf.image.resize_images(u, [self.image_size, self.image_size], method=ResizeMethod.BICUBIC)
 
 	def generator(self, id):
-		with tf.variable_scope('Generator') as scope:
+		with tf.variable_scope('Generator'):
 			# fully connected layer f0
 			f0 = tf.reshape(self.fully(id, name='Fully0'), [-1]+self.fully_output_shape)
 			f0 = tf.nn.relu(self.bnorm0(f0))
@@ -99,10 +90,18 @@ class GG(object):
 			d2 = tf.nn.tanh(d2)
 			return self.upsample(d2)
 
-	def discriminator(self, image):
-		with tf.Session() as sess:
-			prob_tensor = self.graph_d.get_tensor_by_name('import/prob:0')
-			prob = sess.run(prob_tensor, feed_dict={image: image})
-		return prob
+	def descriptor(self, image):
+		with open(self.model_url, mode='rb') as f:
+			model = f.read()
+		graph_def = tf.GraphDef()
+		graph_def.ParseFromString(model)
+		tf.import_graph_def(graph_def, input_map={'images': image})
+		return tf.get_default_graph().get_tensor_by_name('import/prob:0')
 
 	def build_model(self):
+		self.input_id = tf.placeholder(tf.float32, [1, self.input_dim], name='Input_id')
+		self.G = self.generator(self.input_id)
+		self.D = self.descriptor(self.G)
+
+	def train(self):
+		
