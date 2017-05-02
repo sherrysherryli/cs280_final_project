@@ -1,10 +1,22 @@
-[vgg_face_caffe] contains a caffe model - "VGG face" descriptor trained on LFW (http://vis-www.cs.umass.edu/lfw/) dataset.
-[vgg_face_tensorflow] contains a tensorflow model converted from the caffe one.
-[papers] contains two papers highly related to our project.
+"Image Extraction from Face Recognition System Using Deep Convolutional Generative Network"
+    -cs280/294-131 final project
 
-Here are two questions to be solved:
-1. How to conbine the input 2D label vectors with 3D noise image (structure of conditional GAN)? 
-2. How to use .caffemodel or .tfmodel in back-propogation?
+Contents:
+    main.py: Training a deep generative network based on a reference image.
+    main2.py: Trainging a deep generative network based on a face discriminator "facedetect.tfmodel".
+    demo0.py: Training a deep Mnist clasisfier and saving it with constant parameters to "mnist.tfmodel".
+    demo1.py: A demo for reading images to tensors and arrays.
+    demo2.py: A demo for faces recognition using a pre-trained face descriptor "vggface16.tfmodel".
+    demo3.py: A demo for digits recognition using "mnist.tfmodel".
+    demo4.py: A demo for modifying images.
+    demo5.py: A demo for testing "facedetect.tfmodel".
+    name.txt: The name list of the "vggface16.tfmodel".
 
-
-fk you 
+Models:
+    vggface16.tfmodel: A deep face descriptor (converted from http://www.robots.ox.ac.uk/~vgg/software/vgg_face/).
+        input: 224*224*3 rgb image.
+        output: Probabilities with which the input image be recognized to 2622 different identities.
+    mnist.tfmodel: A deep digits classifier (trained in demo0.py).
+        input: 28*28 grayscale image.
+        output: Probabilities that can be recognized to digits 0-9.
+    facedetect.tfmodel: A deep face discrimator which can tell whether there exists a human face in the image.

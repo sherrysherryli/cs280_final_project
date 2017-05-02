@@ -7,6 +7,7 @@ import matplotlib.image as mpimg
 #import skimage.io
 #import skimage.transform
 
+
 # read image using tensorflow
 filename = tf.train.string_input_producer(["ak.png"]) 
 reader = tf.WholeFileReader()
@@ -26,3 +27,4 @@ with tf.Session() as sess:
 image2 = mpimg.imread("ak.png")*255
 image2 = image2.astype(int)
 print(image2[0][0][0])
+

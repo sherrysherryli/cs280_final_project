@@ -17,46 +17,38 @@ def reshape_image(url, pixel):
 		reshaped_image = np.asarray(image.resize((large, pixel)))
 		reshaped_image = reshaped_image[:,tt:tt+pixel,:]
 	return reshaped_image/255.
+	
+img = reshape_image('face_image.jpg', 224)
+print img.shape
 
-
-pix = 224
-# read image	
-img = reshape_image('zhi.jpg', pix)
 # load model
 with open('vggface16.tfmodel', mode='rb') as f:
 	fileContent = f.read()
-
-
 graph_def = tf.GraphDef()
 graph_def.ParseFromString(fileContent)
-images = tf.placeholder('float', [None, pix, pix, 3])
-tf.import_graph_def(graph_def, input_map={ 'images': images })
-print "graph loaded from disk"
+images = tf.placeholder(tf.float32, [None, 224, 224, 3])
+tf.import_graph_def(graph_def, input_map={ 'images:0': images })
 graph = tf.get_default_graph()
 
-
-init = tf.global_variables_initializer()
 with tf.Session() as sess:
-	sess.run(init)
+	sess.run(tf.global_variables_initializer())
   	print "variables initialized"
-
-  	batch = img.reshape((1, pix, pix, 3))
-  	assert batch.shape == (1, pix, pix, 3)
-
+  	batch = img.reshape((1, 224, 224, 3))
   	feed_dict = { images: batch }
-
   	prob_tensor = graph.get_tensor_by_name('import/prob:0')
-  	prob = sess.run(prob_tensor, feed_dict=feed_dict)
-
-
-print "prob shape", prob.shape
+  	fc8_tensor = graph.get_tensor_by_name('import/fc8/BiasAdd:0')
+  	prob, fc8 = sess.run([prob_tensor,fc8_tensor], feed_dict=feed_dict)
+ 
 name = [s.strip() for s in open('names.txt').readlines()]
 rank = np.argsort(prob[0])[::-1]
-print "top 1:", name[rank[0]], prob[0][rank[0]]
-print "top 2:", name[rank[1]], prob[0][rank[1]]
-print "top 3:", name[rank[2]], prob[0][rank[2]]
-print "top 4:", name[rank[3]], prob[0][rank[3]]
-print "top 5:", name[rank[4]], prob[0][rank[4]]
+print fc8.shape
+print "top 1:", name[rank[0]], prob[0][rank[0]], fc8[0][rank[0]]
+print "top 2:", name[rank[1]], prob[0][rank[1]], fc8[0][rank[1]]
+print "top 3:", name[rank[2]], prob[0][rank[2]], fc8[0][rank[2]]
+print "top 4:", name[rank[3]], prob[0][rank[3]], fc8[0][rank[3]]
+print "top 5:", name[rank[4]], prob[0][rank[4]], fc8[0][rank[4]]
+
+#print graph.get_operations()
 plt.figure()
 plt.imshow(img)
 plt.show()
